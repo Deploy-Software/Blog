@@ -1,9 +1,12 @@
+#![recursion_limit="4096"]
 use index::IndexModel;
+use post::PostModel;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::{prelude::*, Switch};
 
 mod index;
+mod post;
 
 struct Model {}
 
@@ -36,7 +39,8 @@ impl Component for Model {
                 match switch {
                     AppRoute::NotIndex => html!{<h1>{"Not Index"}</h1>},
                     AppRoute::Index => html!{<IndexModel />},
-               }
+                    AppRoute::Post => html!{<PostModel />},
+                }
             })
         />
             }
@@ -47,6 +51,8 @@ impl Component for Model {
 pub enum AppRoute {
     #[to = "/not_index"]
     NotIndex,
+    #[to = "/post"]
+    Post,
     #[to = "/"]
     Index,
 }

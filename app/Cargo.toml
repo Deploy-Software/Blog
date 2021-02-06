@@ -18,3 +18,5 @@ serde = "1.0.123"
 serde_derive = "1.0.123"
 serde_json = "1.0.61"
 anyhow = "1.0.38"
+markdown = "0.3"
+web-sys = { version = "0.3", features = ["Node"]}
