@@ -31,7 +31,7 @@ pub struct SignUpConnection {
 pub enum Msg {
     SignUp,
     ReceiveResponse(Result<GraphQLResponse<SignUpConnection>, anyhow::Error>),
-    OrganizationInputReceived(String),
+    BlogInputReceived(String),
     EmailInputReceived(String),
     PasswordInputReceived(String),
     ClearNotifications,
@@ -46,8 +46,8 @@ pub struct InitialModel {
     email_error: Option<String>,
     password: String,
     password_error: Option<String>,
-    organization: String,
-    organization_error: Option<String>,
+    blog: String,
+    blog_error: Option<String>,
     error: Option<String>,
     success: Option<String>,
 }
@@ -85,8 +85,8 @@ impl InitialModel {
         }
     }
 
-    fn view_organization_error(&self) -> Html {
-        if let Some(ref message) = self.organization_error {
+    fn view_blog_error(&self) -> Html {
+        if let Some(ref message) = self.blog_error {
             html! {
                 <p class="mt-1 text-red-500 text-sm">{ message }</p>
             }
@@ -208,8 +208,8 @@ impl Component for InitialModel {
             email_error: None,
             password: String::from(""),
             password_error: None,
-            organization: String::from(""),
-            organization_error: None,
+            blog: String::from(""),
+            blog_error: None,
         }
     }
     fn change(&mut self, _props: Self::Properties) -> bool {
@@ -220,8 +220,8 @@ impl Component for InitialModel {
 
         match msg {
             SignUp => {
-                if self.organization.is_empty() {
-                    self.organization_error = Some("Your organization name is not valid".into());
+                if self.blog.is_empty() {
+                    self.blog_error = Some("Your blog name is not valid".into());
                     return true;
                 }
 
@@ -280,7 +280,7 @@ impl Component for InitialModel {
                             self.success = Some("OK".into());
                             self.email = String::from("");
                             self.password = String::from("");
-                            self.organization = String::from("");
+                            self.blog = String::from("");
                         }
                     }
                     Err(error) => self.error = Some(error.to_string()),
@@ -295,11 +295,11 @@ impl Component for InitialModel {
                 self.success = None;
                 true
             }
-            OrganizationInputReceived(value) => {
+            BlogInputReceived(value) => {
                 self.error = None;
                 self.success = None;
-                self.organization_error = None;
-                self.organization = value;
+                self.blog_error = None;
+                self.blog = value;
                 true
             }
             EmailInputReceived(value) => {
@@ -329,7 +329,7 @@ impl Component for InitialModel {
               alt="Workflow"
             />
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {"Create your organization"}
+            {"Create your blog"}
             </h2>
           </div>
 
@@ -338,23 +338,23 @@ impl Component for InitialModel {
               <div class="space-y-6">
                  <div>
                   <label
-                    htmlFor="organization"
+                    htmlFor="blog"
                     class="block text-sm font-medium text-gray-700"
                   >
-                  {"Organization name"}
+                  {"Blog name"}
                   </label>
                   <div class="mt-1">
                     <input
-                      id="organization"
-                      name="organization"
+                      id="blog"
+                      name="blog"
                       type="text"
                       class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       placeholder="Ford Motor Company"
-                      oninput=self.link.callback(|input_data: InputData| Msg::OrganizationInputReceived(input_data.value))
-                        value=&self.organization
+                      oninput=self.link.callback(|input_data: InputData| Msg::BlogInputReceived(input_data.value))
+                        value=&self.blog
                       />
                   </div>
-                  { self.view_organization_error() }
+                  { self.view_blog_error() }
                 </div>
 
                <div>
