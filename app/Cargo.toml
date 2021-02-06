@@ -1,0 +1,20 @@
+[package]
+name = "yew-app"
+version = "0.1.0"
+authors = ["Axel Nilsson <axel@deploy.software>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+yew = "0.17"
+wasm-bindgen = "0.2.67"
+yew-router = "0.14.0"
+cynic = { version = "0.11.1", default-features = false }
+serde = "1.0.123"
+serde_derive = "1.0.123"
+serde_json = "1.0.61"
+anyhow = "1.0.38"
