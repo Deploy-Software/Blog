@@ -1,5 +1,6 @@
 schema {
   query: QueryRoot
+  mutation: MutationRoot
 }
 
 """Directs the executor to query only when the field exists."""
@@ -41,4 +42,11 @@ directive @connection(
 
 type QueryRoot {
   ping: String!
+}
+
+type MutationRoot {
+  signUp(email: String!, password: String!): String!
+  signIn(email: String!, password: String!): String!
+  addPersonalData(name: String!, jobTitle: String): String!
+  newOrganization(name: String!): String!
 }

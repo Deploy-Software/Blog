@@ -1,5 +1,7 @@
 #![recursion_limit="4096"]
 use index::IndexModel;
+use sign_in::SignInModel;
+use initial::InitialModel;
 use post::PostModel;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
@@ -7,6 +9,8 @@ use yew_router::{prelude::*, Switch};
 
 mod index;
 mod post;
+mod initial;
+mod sign_in;
 
 struct Model {}
 
@@ -40,6 +44,8 @@ impl Component for Model {
                     AppRoute::NotIndex => html!{<h1>{"Not Index"}</h1>},
                     AppRoute::Index => html!{<IndexModel />},
                     AppRoute::Post => html!{<PostModel />},
+                    AppRoute::Initial => html!{<InitialModel />},
+                    AppRoute::SignIn => html!{<SignInModel />},
                 }
             })
         />
@@ -53,6 +59,10 @@ pub enum AppRoute {
     NotIndex,
     #[to = "/post"]
     Post,
+    #[to = "/initial"]
+    Initial,
+    #[to = "/sign/in"]
+    SignIn,
     #[to = "/"]
     Index,
 }
