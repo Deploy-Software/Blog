@@ -38,6 +38,28 @@ impl<'a> SimpleUser {
         }
     }
 
+    pub async fn from_session_token(pg_pool: &PgPool, session_token: &'a str) -> Result<Self> {
+        match sqlx::query_as!(
+            Self,
+            "SELECT users.id, users.email, users.password, users.date FROM users INNER JOIN user_sessions ON users.id = user_sessions.user_id WHERE user_sessions.token = $1",
+            session_token
+        )
+        .fetch_optional(pg_pool)
+        .await
+        {
+            Ok(maybe_user) => match maybe_user {
+                Some(user) => Ok(user),
+                None => Err(Error::from("The user session doesn't exist.")),
+            },
+            Err(error) => {
+                println!("{}", error.to_string());
+                Err(Error::from(
+                    "An error occured while retrieving the user from the database.",
+                ))
+            }
+        }
+    }
+
     pub async fn password_matches(
         &self,
         password_to_test: &'a str,
