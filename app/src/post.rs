@@ -22,14 +22,33 @@ pub struct PingConnection {
 }
 
 pub struct PostModel {
-    link: ComponentLink<Self>,
     fetch_target: Option<FetchTask>,
-    value: i64,
-    markdown: String,
+    markdown: Option<String>,
+}
+
+impl PostModel {
+  pub fn markdown_node(&self) -> Html {
+    match &self.markdown {
+      Some(text) => {
+        let div = web_sys::window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .create_element("div")
+        .unwrap();
+
+        div.set_inner_html(&markdown::to_html(text));
+        let node = Node::from(div);
+        let vnode = VNode::VRef(node);
+
+        html!{{vnode}}
+      },
+      None => html!{{"Loading..."}}
+    }
+  }
 }
 
 pub enum Msg {
-    AddOne,
     ReceiveResponse(Result<GraphQLResponse<PingConnection>, anyhow::Error>),
 }
 
@@ -37,43 +56,36 @@ impl Component for PostModel {
     type Message = Msg;
     type Properties = ();
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+      let operation = PingConnection::build(());
+
+      let query = serde_json::to_string(&operation).unwrap();
+
+      let request = Request::post("/graphql")
+          .header("Content-Type", "application/json")
+          .body(Ok(query))
+          .expect("Failed to build request.");
+      let callback = link.callback(
+          |response: Response<
+              Json<Result<GraphQLResponse<PingConnection>, anyhow::Error>>,
+          >| {
+              let Json(data) = response.into_body();
+              Msg::ReceiveResponse(data)
+          },
+      );
+      let target =
+          FetchService::fetch(request, callback).expect("failed to start request");
         Self {
-            link,
-            fetch_target: None,
-            value: 0,
-            markdown: String::from("__I am markdown__"),
+            fetch_target: Some(target),
+            markdown: None,
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::AddOne => {
-                let operation = PingConnection::build(());
-
-                let query = serde_json::to_string(&operation).unwrap();
-
-                let request = Request::post("/graphql")
-                    .header("Content-Type", "application/json")
-                    .body(Ok(query))
-                    .expect("Failed to build request.");
-                let callback = self.link.callback(
-                    |response: Response<
-                        Json<Result<GraphQLResponse<PingConnection>, anyhow::Error>>,
-                    >| {
-                        let Json(data) = response.into_body();
-                        Msg::ReceiveResponse(data)
-                    },
-                );
-                let target =
-                    FetchService::fetch(request, callback).expect("failed to start request");
-                self.fetch_target = Some(target);
-
-                self.value += 1
-            }
             Msg::ReceiveResponse(response) => {
                 match response {
                     Ok(graphql_response) => {
-                        ConsoleService::info(&format!("OK: {:?}", graphql_response.data))
+                        self.markdown = graphql_response.data.and_then(|data| Some(data.ping));
                     }
                     Err(error) => ConsoleService::info(&format!("Error: {}", error.to_string())),
                 };
@@ -91,16 +103,6 @@ impl Component for PostModel {
     }
 
     fn view(&self) -> Html {
-        let div = web_sys::window()
-            .unwrap()
-            .document()
-            .unwrap()
-            .create_element("div")
-            .unwrap();
-        div.set_inner_html(&markdown::to_html(&self.markdown));
-        let node = Node::from(div);
-        let vnode = VNode::VRef(node);
-
         html! {
             <div class="relative py-16 bg-white overflow-hidden">
             <div class="hidden lg:block lg:absolute lg:inset-y-0 lg:h-full lg:w-full">
@@ -141,7 +143,7 @@ impl Component for PostModel {
               </div>
               <div class="text-lg max-w-prose mx-auto">
               <div class="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
-              {vnode}
+              {self.markdown_node()}
               </div>
               </div>
             </div>

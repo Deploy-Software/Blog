@@ -3,6 +3,7 @@ use index::IndexModel;
 use sign_in::SignInModel;
 use initial::InitialModel;
 use post::PostModel;
+use new_post::NewPostModel;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::{prelude::*, Switch};
@@ -11,6 +12,7 @@ mod index;
 mod post;
 mod initial;
 mod sign_in;
+mod new_post;
 
 struct Model {}
 
@@ -46,6 +48,7 @@ impl Component for Model {
                     AppRoute::Post => html!{<PostModel />},
                     AppRoute::Initial => html!{<InitialModel />},
                     AppRoute::SignIn => html!{<SignInModel />},
+                    AppRoute::NewPost => html!{<NewPostModel />},
                 }
             })
         />
@@ -55,6 +58,8 @@ impl Component for Model {
 
 #[derive(Switch, Clone, Debug)]
 pub enum AppRoute {
+    #[to = "/posts_new"]
+    NewPost,
     #[to = "/not_index"]
     NotIndex,
     #[to = "/post"]
