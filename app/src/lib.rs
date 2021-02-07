@@ -7,6 +7,10 @@ use new_post::NewPostModel;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::{prelude::*, Switch};
+use serde::Deserialize;
+
+#[derive(cynic::Scalar, Deserialize)]
+pub struct DateTime(chrono::DateTime<chrono::Utc>);
 
 mod index;
 mod post;
@@ -17,6 +21,8 @@ mod new_post;
 struct Model {}
 
 pub mod query_dsl {
+    use crate::DateTime;
+
     cynic::query_dsl!("schema.graphql");
 }
 

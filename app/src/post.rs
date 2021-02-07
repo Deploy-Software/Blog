@@ -10,7 +10,7 @@ use yew::services::FetchService;
 use yew::virtual_dom::VNode;
 use web_sys::Node;
 
-#[derive(cynic::QueryFragment, Debug, Deserialize)]
+#[derive(cynic::QueryFragment, Deserialize)]
 #[cynic(
     schema_path = "schema.graphql",
     query_module = "query_dsl",
@@ -21,6 +21,7 @@ pub struct Post {
   id: i32,
   title: String,
   text: String,
+  created_at: crate::DateTime,
 }
 
 #[derive(cynic::FragmentArguments)]
@@ -28,7 +29,7 @@ pub struct PostArguments {
     post_id: i32,
 }
 
-#[derive(cynic::QueryFragment, Debug, Deserialize)]
+#[derive(cynic::QueryFragment, Deserialize)]
 #[cynic(
     schema_path = "schema.graphql",
     query_module = "query_dsl",
@@ -47,6 +48,15 @@ pub struct PostModel {
 }
 
 impl PostModel {
+  pub fn title(&self) -> Html {
+    match &self.post {
+      Some(post) => {
+        html!{{post.title.clone()}}
+      },
+      None => html!{{"Loading..."}}
+    }
+  }
+
   pub fn markdown_node(&self) -> Html {
     match &self.post {
       Some(post) => {
@@ -63,7 +73,7 @@ impl PostModel {
 
         html!{{vnode}}
       },
-      None => html!{{"Loading..."}}
+      None => html!{{""}}
     }
   }
 }
@@ -159,7 +169,7 @@ impl Component for PostModel {
               <div class="text-lg max-w-prose mx-auto">
                 <h1>
                   <span class="block text-base text-center text-indigo-600 font-semibold tracking-wide uppercase">{"Introducing"}</span>
-                  <span class="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">{"JavaScript for Beginners"}</span>
+                  <span class="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">{self.title()}</span>
                 </h1>
                 <p class="mt-8 text-xl text-gray-500 leading-8">{"Aliquet nec orci mattis amet quisque ullamcorper neque, nibh sem. At arcu, sit dui mi, nibh dui, diam eget aliquam. Quisque id at vitae feugiat egestas ac. Diam nulla orci at in viverra scelerisque eget. Eleifend egestas fringilla sapien"}</p>
               </div>
