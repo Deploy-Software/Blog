@@ -43,13 +43,13 @@ pub struct PostConnection {
 
 pub struct PostModel {
     fetch_target: Option<FetchTask>,
-    markdown: Option<String>,
+    post: Option<Post>,
 }
 
 impl PostModel {
   pub fn markdown_node(&self) -> Html {
-    match &self.markdown {
-      Some(text) => {
+    match &self.post {
+      Some(post) => {
         let div = web_sys::window()
         .unwrap()
         .document()
@@ -57,7 +57,7 @@ impl PostModel {
         .create_element("div")
         .unwrap();
 
-        div.set_inner_html(&markdown::to_html(text));
+        div.set_inner_html(&markdown::to_html(&post.text));
         let node = Node::from(div);
         let vnode = VNode::VRef(node);
 
@@ -98,7 +98,7 @@ impl Component for PostModel {
           FetchService::fetch(request, callback).expect("failed to start request");
         Self {
             fetch_target: Some(target),
-            markdown: None,
+            post: None,
         }
     }
 
@@ -107,7 +107,7 @@ impl Component for PostModel {
             Msg::ReceiveResponse(response) => {
                 match response {
                     Ok(graphql_response) => {
-                        self.markdown = graphql_response.data.and_then(|data| data.post.and_then(|post| Some(post.text)));
+                        self.post = graphql_response.data.and_then(|data| data.post);
                     }
                     Err(error) => ConsoleService::info(&format!("Error: {}", error.to_string())),
                 };
