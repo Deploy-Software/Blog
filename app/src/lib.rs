@@ -49,9 +49,8 @@ impl Component for Model {
         <Router<AppRoute, ()>
             render = Router::render(|switch: AppRoute| {
                 match switch {
-                    AppRoute::NotIndex => html!{<h1>{"Not Index"}</h1>},
                     AppRoute::Index => html!{<IndexModel />},
-                    AppRoute::Post => html!{<PostModel />},
+                    AppRoute::Post(id) => html!{<PostModel id={id} />},
                     AppRoute::Initial => html!{<InitialModel />},
                     AppRoute::SignIn => html!{<SignInModel />},
                     AppRoute::NewPost => html!{<NewPostModel />},
@@ -64,12 +63,10 @@ impl Component for Model {
 
 #[derive(Switch, Clone, Debug)]
 pub enum AppRoute {
-    #[to = "/posts_new"]
+    #[to = "/posts/new"]
     NewPost,
-    #[to = "/not_index"]
-    NotIndex,
-    #[to = "/post"]
-    Post,
+    #[to = "/post/{id}"]
+    Post(i32),
     #[to = "/initial"]
     Initial,
     #[to = "/sign/in"]

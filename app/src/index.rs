@@ -44,7 +44,7 @@ impl IndexModel {
                   <a href="#" class="hover:underline">{"Dries Vincent"}</a>
                 </p>
                 <p class="text-sm text-gray-500">
-                  <a href="#" class="hover:underline">{"December 9 at 11:43 AM"}</a>
+                  <a href="#" class="hover:underline">{post.created_at.0.format("%Y-%m-%d")}</a>
                 </p>
               </div>
             </div>

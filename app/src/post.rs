@@ -42,6 +42,12 @@ pub struct PostConnection {
     post: Option<Post>,
 }
 
+#[derive(Clone, PartialEq, Properties)]
+pub struct PostModelProps {
+    pub id: i32,
+}
+
+
 pub struct PostModel {
     fetch_target: Option<FetchTask>,
     post: Option<Post>,
@@ -84,10 +90,10 @@ pub enum Msg {
 
 impl Component for PostModel {
     type Message = Msg;
-    type Properties = ();
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    type Properties = PostModelProps;
+    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
       let operation = PostConnection::build(PostArguments{
-        post_id: 1,
+        post_id: props.id,
       });
 
       let query = serde_json::to_string(&operation).unwrap();
