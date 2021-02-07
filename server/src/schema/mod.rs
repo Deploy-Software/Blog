@@ -281,4 +281,13 @@ impl MutationRoot {
     ) -> Result<String> {
         authorization::sign_in(ctx, email, password).await
     }
+
+    async fn new_post<'a>(
+        &self,
+        ctx: &'a Context<'_>,
+        title: String,
+        text: String,
+    ) -> Result<Post> {
+        posts::new(ctx, &title, &text).await
+    }
 }
