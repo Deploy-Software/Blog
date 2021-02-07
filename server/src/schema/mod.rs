@@ -10,6 +10,11 @@ impl QueryRoot {
     async fn posts<'a>(&self, ctx: &'a Context<'_>) -> Result<Vec<Post>> {
         posts::get_all(ctx).await
     }
+
+    async fn post<'a>(&self, ctx: &'a Context<'_>, post_id: i32) -> Result<Option<Post>> {
+        posts::get(ctx, post_id).await
+    }
+
     async fn ping<'a>(&self, _ctx: &'a Context<'_>) -> &'a str {
     r#"
     ---
@@ -289,5 +294,15 @@ impl MutationRoot {
         text: String,
     ) -> Result<Post> {
         posts::new(ctx, &title, &text).await
+    }
+
+    async fn update_post<'a>(
+        &self,
+        ctx: &'a Context<'_>,
+        post_id: i32,
+        title: Option<String>,
+        text: Option<String>,
+    ) -> Result<&'a str> {
+        posts::update(ctx, post_id, title, text).await
     }
 }

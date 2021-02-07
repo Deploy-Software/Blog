@@ -37,6 +37,101 @@ impl<'a> Post {
             }
         }
     }
+
+    pub async fn get(pg_pool: &PgPool, post_id: i32) -> Result<Option<Self>> {
+        match sqlx::query_as!(
+            Self,
+            r#"
+            SELECT
+                posts.id,
+                posts.title,
+                posts.text,
+                posts.created_at
+            FROM
+                posts
+            WHERE
+                posts.id = $1
+            "#,
+            post_id
+        )
+        .fetch_optional(pg_pool)
+        .await
+        {
+            Ok(post) => match post {
+                Some(exists) => Ok(Some(exists)),
+                None => Ok(None),
+            },
+            Err(error) => {
+                println!("{}", error.to_string());
+                Err(Error::from(
+                    "An error occured while retrieving the posts from the database.",
+                ))
+            }
+        }
+    }
+
+    pub async fn update(pg_pool: &PgPool, post_id: i32, _user_id: i32, title: Option<String>, text: Option<String>) -> Result<()> {
+        match title {
+            Some(updated_title) => {
+                match sqlx::query_as!(
+                    Self,
+                    r#"
+                    UPDATE
+                        posts
+                    SET
+                        title = $1
+                    WHERE
+                        id = $2
+                    "#,
+                    updated_title,
+                    post_id
+                )
+                .execute(pg_pool)
+                .await
+                {
+                    Ok(_post) => {},
+                    Err(error) => {
+                        println!("{}", error.to_string());
+                        return Err(Error::from(
+                            "An error occured while updating the post title in the database.",
+                        ));
+                    }
+                }
+            },
+            None => {}
+        }
+
+        match text {
+            Some(updated_text) => {
+                match sqlx::query_as!(
+                    Self,
+                    r#"
+                    UPDATE
+                        posts
+                    SET
+                        text = $1
+                    WHERE
+                        id = $2
+                    "#,
+                    updated_text,
+                    post_id
+                )
+                .execute(pg_pool)
+                .await
+                {
+                    Ok(_post) => {},
+                    Err(error) => {
+                        println!("{}", error.to_string());
+                        return Err(Error::from(
+                            "An error occured while updating the post text in the database.",
+                        ));
+                    }
+                }
+            },
+            None => {}
+        }
+        Ok(())
+    }
 }
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
