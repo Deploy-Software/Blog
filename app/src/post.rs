@@ -18,10 +18,10 @@ use web_sys::Node;
 )]
 #[serde(rename_all = "camelCase")]
 pub struct Post {
-  id: i32,
-  title: String,
-  text: String,
-  created_at: crate::DateTime,
+  pub id: i32,
+  pub title: String,
+  pub text: String,
+  pub created_at: crate::DateTime,
 }
 
 #[derive(cynic::FragmentArguments)]
