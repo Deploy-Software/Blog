@@ -14,11 +14,31 @@ use web_sys::Node;
 #[cynic(
     schema_path = "schema.graphql",
     query_module = "query_dsl",
-    graphql_type = "QueryRoot"
+    graphql_type = "Post"
 )]
 #[serde(rename_all = "camelCase")]
-pub struct PingConnection {
-    ping: String,
+pub struct Post {
+  id: i32,
+  title: String,
+  text: String,
+}
+
+#[derive(cynic::FragmentArguments)]
+pub struct PostArguments {
+    post_id: i32,
+}
+
+#[derive(cynic::QueryFragment, Debug, Deserialize)]
+#[cynic(
+    schema_path = "schema.graphql",
+    query_module = "query_dsl",
+    graphql_type = "QueryRoot",
+    argument_struct = "PostArguments"
+)]
+#[serde(rename_all = "camelCase")]
+pub struct PostConnection {
+    #[arguments(post_id = args.post_id)]
+    post: Option<Post>,
 }
 
 pub struct PostModel {
@@ -49,14 +69,16 @@ impl PostModel {
 }
 
 pub enum Msg {
-    ReceiveResponse(Result<GraphQLResponse<PingConnection>, anyhow::Error>),
+    ReceiveResponse(Result<GraphQLResponse<PostConnection>, anyhow::Error>),
 }
 
 impl Component for PostModel {
     type Message = Msg;
     type Properties = ();
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-      let operation = PingConnection::build(());
+      let operation = PostConnection::build(PostArguments{
+        post_id: 1,
+      });
 
       let query = serde_json::to_string(&operation).unwrap();
 
@@ -66,7 +88,7 @@ impl Component for PostModel {
           .expect("Failed to build request.");
       let callback = link.callback(
           |response: Response<
-              Json<Result<GraphQLResponse<PingConnection>, anyhow::Error>>,
+              Json<Result<GraphQLResponse<PostConnection>, anyhow::Error>>,
           >| {
               let Json(data) = response.into_body();
               Msg::ReceiveResponse(data)
@@ -85,7 +107,7 @@ impl Component for PostModel {
             Msg::ReceiveResponse(response) => {
                 match response {
                     Ok(graphql_response) => {
-                        self.markdown = graphql_response.data.and_then(|data| Some(data.ping));
+                        self.markdown = graphql_response.data.and_then(|data| data.post.and_then(|post| Some(post.text)));
                     }
                     Err(error) => ConsoleService::info(&format!("Error: {}", error.to_string())),
                 };

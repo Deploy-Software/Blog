@@ -13,10 +13,11 @@ crate-type = ["cdylib", "rlib"]
 yew = "0.17"
 wasm-bindgen = "0.2.67"
 yew-router = "0.14.0"
-cynic = { version = "0.11.1", default-features = false }
+cynic = { version = "0.11.1", features = ["chrono"], default-features = false }
 serde = "1.0.123"
 serde_derive = "1.0.123"
 serde_json = "1.0.61"
 anyhow = "1.0.38"
 markdown = "0.3"
 web-sys = { version = "0.3", features = ["Node"]}
+chrono = { version = "0.4.19", features = ["serde"] }

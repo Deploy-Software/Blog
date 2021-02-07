@@ -1,13 +1,13 @@
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptySubscription, Schema};
 use async_graphql_warp::Response;
-use std::convert::Infallible;
-use warp::{http::Response as HttpResponse, Filter};
 use sqlx::postgres::PgPool;
+use std::convert::Infallible;
 use std::env;
+use warp::{http::Response as HttpResponse, Filter};
 
-mod schema;
 mod records;
+mod schema;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -28,7 +28,10 @@ async fn main() {
         .await
         .expect("Database migrations failed");
 
-    let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription).finish();
+    let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
+        .data(pg_pool)
+        .finish();
+        
     let graphql_post = warp::path("graphql")
         .and(warp::post())
         .and(warp::header::optional("token"))

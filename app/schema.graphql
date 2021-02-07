@@ -40,11 +40,28 @@ directive @connection(
   filter: [String!]
 ) on FIELD
 
+"""
+Implement the DateTime<Utc> scalar
+
+The input/output is a string in RFC3339 format.
+"""
+scalar DateTime
+
 type MutationRoot {
   signUp(email: String!, password: String!): String!
   signIn(email: String!, password: String!): String!
+  newPost(title: String!, text: String!): Post!
+  updatePost(postId: Int!, title: String, text: String): String!
+}
+
+type Post {
+  id: Int!
+  title: String!
+  text: String!
 }
 
 type QueryRoot {
+  posts: [Post!]!
+  post(postId: Int!): Post
   ping: String!
 }
