@@ -19,7 +19,17 @@ impl<'a> SimpleUser {
     pub async fn from_email(pg_pool: &PgPool, email: &'a str) -> Result<Self> {
         match sqlx::query_as!(
             Self,
-            "SELECT id, email, password, date FROM users WHERE email = $1",
+            r#"
+                SELECT
+                    id,
+                    email,
+                    password,
+                    date
+                FROM
+                    users
+                WHERE
+                    email = $1
+            "#,
             email
         )
         .fetch_optional(pg_pool)
@@ -41,7 +51,21 @@ impl<'a> SimpleUser {
     pub async fn from_session_token(pg_pool: &PgPool, session_token: &'a str) -> Result<Self> {
         match sqlx::query_as!(
             Self,
-            "SELECT users.id, users.email, users.password, users.date FROM users INNER JOIN user_sessions ON users.id = user_sessions.user_id WHERE user_sessions.token = $1",
+            r#"
+                SELECT
+                    users.id,
+                    users.email,
+                    users.password,
+                    users.date
+                FROM
+                    users
+                INNER JOIN
+                    user_sessions
+                ON
+                    users.id = user_sessions.user_id
+                WHERE
+                    user_sessions.token = $1
+            "#,
             session_token
         )
         .fetch_optional(pg_pool)
@@ -122,7 +146,17 @@ impl<'a> NewUser<'a> {
     pub async fn insert(&self, pg_pool: &PgPool) -> Result<SimpleUser> {
         match sqlx::query_as!(
             SimpleUser,
-            "INSERT INTO users(email, password) VALUES($1, $2) RETURNING id, email, password, date",
+            r#"
+                INSERT INTO users
+                    (email, password)
+                VALUES
+                    ($1, $2)
+                RETURNING
+                    id,
+                    email,
+                    password,
+                    date
+            "#,
             &self.email,
             &self.password
         )

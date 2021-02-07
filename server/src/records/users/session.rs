@@ -29,7 +29,12 @@ impl<'a> NewSession {
 
     pub async fn insert(&self, pg_pool: &PgPool, user_id: i32) -> Result<PgQueryResult> {
         match sqlx::query!(
-            "INSERT INTO user_sessions (user_id, token) VALUES ($1, $2)",
+            r#"
+            INSERT INTO user_sessions
+                (user_id, token)
+            VALUES
+                ($1, $2)
+            "#,
             user_id,
             &self.token
         )
