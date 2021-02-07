@@ -1,10 +1,15 @@
+use crate::records::posts::Post;
 use crate::{MutationRoot, QueryRoot};
 use async_graphql::{Context, Object, Result};
 
 mod authorization;
+mod posts;
 
 #[Object]
 impl QueryRoot {
+    async fn posts<'a>(&self, ctx: &'a Context<'_>) -> Result<Vec<Post>> {
+        posts::get_all(ctx).await
+    }
     async fn ping<'a>(&self, _ctx: &'a Context<'_>) -> &'a str {
     r#"
     ---
