@@ -40,13 +40,11 @@ directive @connection(
   filter: [String!]
 ) on FIELD
 
-type QueryRoot {
-  ping: String!
-}
-
 type MutationRoot {
   signUp(email: String!, password: String!): String!
   signIn(email: String!, password: String!): String!
-  addPersonalData(name: String!, jobTitle: String): String!
-  newOrganization(name: String!): String!
+}
+
+type QueryRoot {
+  ping: String!
 }
