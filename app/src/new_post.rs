@@ -57,7 +57,7 @@ impl Component for NewPostModel {
 
     fn view(&self) -> Html {
         html! {
-            <>
+            <div id="markdown">
                 <header>
                     <p>
                         {"Yew Markdown Preview: "}
@@ -70,7 +70,7 @@ impl Component for NewPostModel {
                     />
                     <div class={"prose"}>{self.markdown_node()}</div>
                 </div>
-            </>
+            </div>
         }
     }
 }
