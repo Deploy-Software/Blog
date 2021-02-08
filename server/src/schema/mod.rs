@@ -1,9 +1,11 @@
 use crate::records::posts::Post;
 use crate::{MutationRoot, QueryRoot};
 use async_graphql::{Context, Object, Result};
+use std::collections::HashMap;
 
 mod authorization;
 mod posts;
+mod settings;
 
 #[Object]
 impl QueryRoot {
@@ -13,6 +15,10 @@ impl QueryRoot {
 
     async fn post<'a>(&self, ctx: &'a Context<'_>, post_id: i32) -> Result<Option<Post>> {
         posts::get(ctx, post_id).await
+    }
+
+    async fn settings<'a>(&self, ctx: &'a Context<'_>) -> Result<HashMap<String, String>> {
+        settings::get_all(ctx).await
     }
 
     async fn ping<'a>(&self, _ctx: &'a Context<'_>) -> &'a str {

@@ -51,10 +51,7 @@ impl IndexModel {
             </div>
             <div class="mt-2 text-sm text-gray-700 space-y-4">
               <p>
-                {"Jurassic Park was an incredible idea and a magnificent feat of engineering, but poor protocols and a disregard for human safety killed what could have otherwise been one of the best businesses of our generation."}
-              </p>
-              <p>
-                {"Ultimately, I think that if you wanted to run the park successfully and keep visitors safe, the most important thing to prioritize would be&hellip;"}
+                {&post.summary}
               </p>
             </div>
             <div class="mt-6 flex justify-between space-x-8">
