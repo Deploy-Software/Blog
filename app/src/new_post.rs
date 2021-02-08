@@ -68,7 +68,7 @@ impl Component for NewPostModel {
                         value=&self.text
                         oninput=self.link.callback(|input_data: InputData| Msg::Change(input_data.value))
                     />
-                    <div>{self.markdown_node()}</div>
+                    <div class={"prose"}>{self.markdown_node()}</div>
                 </div>
             </>
         }
