@@ -1,27 +1,30 @@
-#![recursion_limit="4096"]
+#![recursion_limit = "4096"]
 use index::IndexModel;
-use sign_in::SignInModel;
 use initial::InitialModel;
-use post::PostModel;
 use new_post::NewPostModel;
+use post::PostModel;
+use serde::Deserialize;
+use sign_in::SignInModel;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::{prelude::*, Switch};
-use serde::Deserialize;
 
 #[derive(cynic::Scalar, Deserialize)]
 pub struct DateTime(chrono::DateTime<chrono::Utc>);
 
+#[derive(cynic::Scalar, Deserialize)]
+pub struct Jsonobject(serde_json::value::Value);
+
 mod index;
-mod post;
 mod initial;
-mod sign_in;
 mod new_post;
+mod post;
+mod sign_in;
 
 struct Model {}
 
 pub mod query_dsl {
-    use crate::DateTime;
+    use crate::{DateTime, Jsonobject};
 
     cynic::query_dsl!("schema.graphql");
 }

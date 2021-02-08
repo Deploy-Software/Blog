@@ -47,6 +47,9 @@ The input/output is a string in RFC3339 format.
 """
 scalar DateTime
 
+"""A scalar that can represent any JSON Object value."""
+scalar JSONObject
+
 type MutationRoot {
   signUp(email: String!, name: String!, password: String!): String!
   signIn(email: String!, password: String!): String!
@@ -66,5 +69,6 @@ type Post {
 type QueryRoot {
   posts: [Post!]!
   post(postId: Int!): Post
+  settings: JSONObject!
   ping: String!
 }
