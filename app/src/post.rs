@@ -19,8 +19,10 @@ use web_sys::Node;
 #[serde(rename_all = "camelCase")]
 pub struct Post {
   pub id: i32,
+  pub slug: String,
   pub title: String,
   pub text: String,
+  pub summary: String,
   pub created_at: crate::DateTime,
 }
 
@@ -46,7 +48,6 @@ pub struct PostConnection {
 pub struct PostModelProps {
     pub id: i32,
 }
-
 
 pub struct PostModel {
     fetch_target: Option<FetchTask>,

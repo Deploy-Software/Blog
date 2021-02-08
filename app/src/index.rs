@@ -28,7 +28,7 @@ pub struct IndexModel {
 impl IndexModel {
   pub fn render_post(&self, post: &Post) -> Html {
     html!{
-      <a href="/post">
+      <a href={format!("/post/{}", post.id)}>
       <li class="bg-white px-4 py-6 shadow sm:p-6 sm:rounded-lg">
           <article aria-labelledby="question-title-81614">
             <div>

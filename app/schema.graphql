@@ -48,16 +48,18 @@ The input/output is a string in RFC3339 format.
 scalar DateTime
 
 type MutationRoot {
-  signUp(email: String!, password: String!): String!
+  signUp(email: String!, name: String!, password: String!): String!
   signIn(email: String!, password: String!): String!
-  newPost(title: String!, text: String!): Post!
+  newPost(slug: String!, title: String!, text: String!, summary: String!): Post!
   updatePost(postId: Int!, title: String, text: String): String!
 }
 
 type Post {
   id: Int!
+  slug: String!
   title: String!
   text: String!
+  summary: String!
   createdAt: DateTime!
 }
 

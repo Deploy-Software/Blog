@@ -11,6 +11,7 @@ use yew::{
 #[derive(cynic::FragmentArguments)]
 pub struct SignUpArguments {
     email: String,
+    name: String,
     password: String,
 }
 
@@ -23,7 +24,7 @@ pub struct SignUpArguments {
 )]
 #[serde(rename_all = "camelCase")]
 pub struct SignUpConnection {
-    #[arguments(email = args.email.clone(), password = args.password.clone())]
+    #[arguments(email = args.email.clone(), name = args.name.clone(), password = args.password.clone())]
     sign_up: String,
 }
 
@@ -33,6 +34,7 @@ pub enum Msg {
     ReceiveResponse(Result<GraphQLResponse<SignUpConnection>, anyhow::Error>),
     BlogInputReceived(String),
     EmailInputReceived(String),
+    NameInputReceived(String),
     PasswordInputReceived(String),
     ClearNotifications,
 }
@@ -44,6 +46,8 @@ pub struct InitialModel {
     link: ComponentLink<Self>,
     email: String,
     email_error: Option<String>,
+    name: String,
+    name_error: Option<String>,
     password: String,
     password_error: Option<String>,
     blog: String,
@@ -103,6 +107,16 @@ impl InitialModel {
         } else {
             html! {}
         }
+    }
+
+    fn view_name_error(&self) -> Html {
+      if let Some(ref message) = self.name_error {
+          html! {
+              <p class="mt-1 text-red-500 text-sm">{ message }</p>
+          }
+      } else {
+          html! {}
+      }
     }
 
     fn view_password_error(&self) -> Html {
@@ -206,6 +220,8 @@ impl Component for InitialModel {
             success: None,
             email: String::from(""),
             email_error: None,
+            name: String::from(""),
+            name_error: None,
             password: String::from(""),
             password_error: None,
             blog: String::from(""),
@@ -230,6 +246,11 @@ impl Component for InitialModel {
                     return true;
                 }
 
+                if self.name.is_empty() {
+                  self.name_error = Some("Your name is not valid".into());
+                  return true;
+                }
+
                 if self.password.is_empty() {
                     self.password_error = Some("Your password is not valid".into());
                     return true;
@@ -237,6 +258,7 @@ impl Component for InitialModel {
 
                 let operation = SignUpConnection::build(SignUpArguments {
                     email: self.email.clone(),
+                    name: self.name.clone(),
                     password: self.password.clone(),
                 });
 
@@ -279,6 +301,7 @@ impl Component for InitialModel {
                         if graphql_response.data.is_some() {
                             self.success = Some("OK".into());
                             self.email = String::from("");
+                            self.name = String::from("");
                             self.password = String::from("");
                             self.blog = String::from("");
                         }
@@ -309,6 +332,13 @@ impl Component for InitialModel {
                 self.email = value;
                 true
             }
+            NameInputReceived(value) => {
+              self.error = None;
+              self.success = None;
+              self.name_error = None;
+              self.name = value;
+              true
+          }
             PasswordInputReceived(value) => {
                 self.error = None;
                 self.success = None;
@@ -378,6 +408,28 @@ impl Component for InitialModel {
                     { self.view_email_error() }
                   </div>
                 </div>
+
+                <div>
+                <label
+                  htmlFor="name"
+                  class="block text-sm font-medium text-gray-700"
+                >
+                {"Name"}
+                </label>
+                <div class="mt-1">
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    oninput=self.link.callback(|input_data: InputData| Msg::NameInputReceived(input_data.value))
+                    value=&self.name
+                    placeholder="Henry Ford"
+                  />
+                  { self.view_name_error() }
+                </div>
+              </div>
 
                 <div>
                   <label

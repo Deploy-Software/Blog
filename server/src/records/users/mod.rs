@@ -11,6 +11,7 @@ pub mod session;
 pub struct SimpleUser {
     pub id: i32,
     pub email: String,
+    pub name: String,
     pub password: String,
     pub date: DateTime<chrono::Utc>,
 }
@@ -21,10 +22,11 @@ impl<'a> SimpleUser {
             Self,
             r#"
                 SELECT
-                    id,
-                    email,
-                    password,
-                    date
+                    users.id,
+                    users.email,
+                    users.name,
+                    users.password,
+                    users.date
                 FROM
                     users
                 WHERE
@@ -55,6 +57,7 @@ impl<'a> SimpleUser {
                 SELECT
                     users.id,
                     users.email,
+                    users.name,
                     users.password,
                     users.date
                 FROM
@@ -103,11 +106,12 @@ impl<'a> SimpleUser {
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
 pub struct NewUser<'a> {
     pub email: &'a str,
+    pub name: &'a str,
     pub password: String,
 }
 
 impl<'a> NewUser<'a> {
-    pub fn new(email: &'a str, password: &'a str) -> Result<Self> {
+    pub fn new(email: &'a str, name: &'a str, password: &'a str) -> Result<Self> {
         let re = match Regex::new(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)") {
             Ok(re) => re,
             Err(error) => {
@@ -140,7 +144,7 @@ impl<'a> NewUser<'a> {
             }
         };
 
-        Ok(NewUser { email, password: hashed_password })
+        Ok(NewUser { email, name, password: hashed_password })
     }
 
     pub async fn insert(&self, pg_pool: &PgPool) -> Result<SimpleUser> {
@@ -148,16 +152,18 @@ impl<'a> NewUser<'a> {
             SimpleUser,
             r#"
                 INSERT INTO users
-                    (email, password)
+                    (email, name, password)
                 VALUES
-                    ($1, $2)
+                    ($1, $2, $3)
                 RETURNING
                     id,
                     email,
+                    name,
                     password,
                     date
             "#,
             &self.email,
+            &self.name,
             &self.password
         )
         .fetch_one(pg_pool)

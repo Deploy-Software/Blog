@@ -26,9 +26,10 @@ impl MutationRoot {
         &self,
         ctx: &'a Context<'_>,
         email: String,
+        name: String,
         password: String,
     ) -> Result<&'a str> {
-        authorization::sign_up(ctx, email, password).await
+        authorization::sign_up(ctx, email, name, password).await
     }
 
     async fn sign_in<'a>(
@@ -43,10 +44,12 @@ impl MutationRoot {
     async fn new_post<'a>(
         &self,
         ctx: &'a Context<'_>,
+        slug: String,
         title: String,
         text: String,
+        summary: String,
     ) -> Result<Post> {
-        posts::new(ctx, &title, &text).await
+        posts::new(ctx, &slug, &title, &text, &summary).await
     }
 
     async fn update_post<'a>(

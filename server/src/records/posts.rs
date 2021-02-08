@@ -6,8 +6,10 @@ use sqlx::PgPool;
 #[derive(sqlx::FromRow, SimpleObject, Debug, Deserialize, Serialize, Clone)]
 pub struct Post {
     pub id: i32,
+    pub slug: String,
     pub title: String,
     pub text: String,
+    pub summary: String,
     pub created_at: DateTime<chrono::Utc>,
 }
 
@@ -18,8 +20,10 @@ impl<'a> Post {
             r#"
             SELECT
                 posts.id,
+                posts.slug,
                 posts.title,
                 posts.text,
+                posts.summary,
                 posts.created_at
             FROM
                 posts
@@ -44,8 +48,10 @@ impl<'a> Post {
             r#"
             SELECT
                 posts.id,
+                posts.slug,
                 posts.title,
                 posts.text,
+                posts.summary,
                 posts.created_at
             FROM
                 posts
@@ -136,14 +142,16 @@ impl<'a> Post {
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
 pub struct NewPost<'a> {
+    pub slug: &'a str,
     pub title: &'a str,
     pub text: &'a str,
+    pub summary: &'a str,
     pub created_by: i32,
 }
 
 impl<'a> NewPost<'a> {
-    pub fn new(title: &'a str, text: &'a str, created_by: i32) -> Result<Self> {
-        Ok(Self { title, text, created_by })
+    pub fn new(slug: &'a str, title: &'a str, text: &'a str, summary: &'a str, created_by: i32) -> Result<Self> {
+        Ok(Self { slug, title, text, summary, created_by })
     }
 
     pub async fn insert(&self, pg_pool: &PgPool) -> Result<Post> {
@@ -151,17 +159,21 @@ impl<'a> NewPost<'a> {
             Post,
             r#"
             INSERT INTO posts
-                (text, title, created_by)
+                (slug, title, text, summary, created_by)
             VALUES
-                ($1, $2, $3)
+                ($1, $2, $3, $4, $5)
             RETURNING
                 id,
+                slug,
                 title,
                 text,
+                summary,
                 created_at
             "#,
+            &self.slug,
             &self.title,
             &self.text,
+            &self.summary,
             &self.created_by
         )
         .fetch_one(pg_pool)
