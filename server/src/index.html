@@ -11,23 +11,19 @@
         />
         <link rel="stylesheet" href="https://unpkg.com/tailwindcss@^2.0/dist/utilities.min.css" />
         <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css"
-        rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css"
+          rel="stylesheet"
+        />
+        <link
+          href="https://tailwindcss-forms.vercel.app/dist/forms.min.css"
+          rel="stylesheet"
         />
         <style>
             body#markdown {
               margin: 0;
               display: flex;
               flex-direction: column;
-              min-height: 100vh;
-            }
-
-            #markdown header {
-              background-color: #efefef;
-              height: 50px;
-              display: flex;
-              align-items: center;
-              padding: 0 1rem;
+              min-height: 20vh;
             }
 
             #markdown header > p {
@@ -39,7 +35,7 @@
             }
 
             #markdown .container > * {
-              min-height: calc(100vh - 50px);
+              min-height: calc(20vh - 50px);
               width: 50%;
               padding: 1rem;
               box-sizing: border-box;

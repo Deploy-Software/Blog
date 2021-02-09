@@ -1,4 +1,4 @@
-#![recursion_limit = "1024"]
+#![recursion_limit = "2048"]
 use index::IndexModel;
 use initial::InitialModel;
 use new_post::NewPostModel;
