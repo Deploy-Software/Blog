@@ -1,9 +1,8 @@
 use crate::components::toolbar::ToolbarModel;
-use crate::post::Post;
+use crate::post::{Post, PostArguments, PostConnection};
 use crate::query_dsl;
-use crate::AppRoute;
 use cynic::GraphQLResponse;
-use cynic::MutationBuilder;
+use cynic::{MutationBuilder, QueryBuilder};
 use serde::Deserialize;
 use web_sys::Node;
 use yew::virtual_dom::VNode;
@@ -13,14 +12,12 @@ use yew::{
     services::fetch::{FetchService, FetchTask, Request, Response},
     services::storage::{Area, StorageService},
 };
-use yew_router::{agent::RouteRequest::ChangeRoute, prelude::*};
 
 #[derive(cynic::FragmentArguments)]
-pub struct NewPostArguments {
-    title: String,
-    text: String,
-    slug: String,
-    summary: String,
+pub struct UpdatePostArguments {
+    post_id: i32,
+    title: Option<String>,
+    text: Option<String>,
 }
 
 #[derive(cynic::QueryFragment, Deserialize)]
@@ -28,25 +25,31 @@ pub struct NewPostArguments {
     schema_path = "schema.graphql",
     query_module = "query_dsl",
     graphql_type = "MutationRoot",
-    argument_struct = "NewPostArguments"
+    argument_struct = "UpdatePostArguments"
 )]
 #[serde(rename_all = "camelCase")]
-pub struct NewPostConnection {
-    #[arguments(title = args.title.clone(), text = args.text.clone(), slug = args.slug.clone(), summary = args.summary.clone())]
-    new_post: Post,
+pub struct UpdatePostConnection {
+    #[arguments(post_id = args.post_id, title = args.title.clone(), text = args.text.clone())]
+    update_post: String,
 }
 
-pub struct NewPostModel {
+#[derive(Clone, PartialEq, Properties)]
+pub struct UpdatePostModelProps {
+    pub id: i32,
+}
+
+pub struct UpdatePostModel {
+    props: UpdatePostModelProps,
     fetch_task: Option<FetchTask>,
+    post: Option<Post>,
     link: ComponentLink<Self>,
     text: String,
     text_error: Option<String>,
     error: Option<String>,
     success: Option<String>,
-    router_agent: Box<dyn Bridge<RouteAgent>>,
 }
 
-impl NewPostModel {
+impl UpdatePostModel {
     pub fn markdown_node(&self) -> Html {
         let div = web_sys::window()
             .unwrap()
@@ -76,11 +79,11 @@ impl NewPostModel {
                       </div>
                       <div class="ml-3 w-0 flex-1 pt-0.5">
                         <p class="text-sm font-medium text-gray-900">
-                        {"You are now logged in"}
+                        {"Post updated!"}
                         </p>
-                        <p class="mt-1 text-sm text-gray-500">
-                        {"You will be redirected in a few seconds"}
-                        </p>
+                        <a href={format!("/post/{}", self.props.id)} class="mt-1 text-sm text-gray-500">
+                        {"Want to view the post?"}
+                        </a>
                       </div>
                       <div class="ml-4 flex-shrink-0 flex">
                         <button class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick=self.link.callback(|_| Msg::ClearNotifications)>
@@ -143,22 +146,38 @@ impl NewPostModel {
 pub enum Msg {
     SubmitNewPost,
     Change(String),
-    ReceiveResponse(Result<GraphQLResponse<NewPostConnection>, anyhow::Error>),
+    ReceiveResponse(Result<GraphQLResponse<PostConnection>, anyhow::Error>),
+    UpdateReceiveResponse(Result<GraphQLResponse<UpdatePostConnection>, anyhow::Error>),
     ClearNotifications,
-    Ignore,
 }
 
-impl Component for NewPostModel {
+impl Component for UpdatePostModel {
     type Message = Msg;
-    type Properties = ();
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    type Properties = UpdatePostModelProps;
+    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+        let operation = PostConnection::build(PostArguments { post_id: props.id });
+
+        let query = serde_json::to_string(&operation).unwrap();
+
+        let request = Request::post("/graphql")
+            .header("Content-Type", "application/json")
+            .body(Ok(query))
+            .expect("Failed to build request.");
+        let callback = link.callback(
+            |response: Response<Json<Result<GraphQLResponse<PostConnection>, anyhow::Error>>>| {
+                let Json(data) = response.into_body();
+                Msg::ReceiveResponse(data)
+            },
+        );
+        let target = FetchService::fetch(request, callback).expect("failed to start request");
         Self {
-            fetch_task: None,
+            props,
+            fetch_task: Some(target),
+            post: None,
             text: String::from(""),
             text_error: None,
             error: None,
             success: None,
-            router_agent: RouteAgent::bridge(link.callback(|_| Msg::Ignore)),
             link,
         }
     }
@@ -181,11 +200,10 @@ impl Component for NewPostModel {
                     return true;
                 }
 
-                let operation = NewPostConnection::build(NewPostArguments {
-                    title: String::from(""),
-                    text: self.text.clone(),
-                    slug: String::from(""),
-                    summary: String::from(""),
+                let operation = UpdatePostConnection::build(UpdatePostArguments {
+                    post_id: self.props.id,
+                    title: None,
+                    text: Some(self.text.clone()),
                 });
 
                 let query = serde_json::to_string(&operation).unwrap();
@@ -198,10 +216,10 @@ impl Component for NewPostModel {
                 // 2. construct a callback
                 let callback = self.link.callback(
                     |response: Response<
-                        Json<Result<GraphQLResponse<NewPostConnection>, anyhow::Error>>,
+                        Json<Result<GraphQLResponse<UpdatePostConnection>, anyhow::Error>>,
                     >| {
                         let Json(data) = response.into_body();
-                        Msg::ReceiveResponse(data)
+                        Msg::UpdateReceiveResponse(data)
                     },
                 );
                 // 3. pass the request and callback to the fetch service
@@ -228,22 +246,41 @@ impl Component for NewPostModel {
                             );
                         }
                         if graphql_response.data.is_some() {
-                            let post = graphql_response.data.unwrap().new_post;
-                            self.success = Some("OK".into());
-                            self.router_agent
-                                .send(ChangeRoute(AppRoute::Post(post.id).into()));
-                            self.success = Some("OK".into());
-                            self.text = String::from("");
+                            self.post = graphql_response.data.unwrap().post;
+                            if let Some(post) = &self.post {
+                                self.text = post.text.clone();
+                            }
                         }
                     }
                     Err(error) => self.error = Some(error.to_string()),
                 }
                 self.fetch_task = None;
             }
-            Msg::Ignore => return false,
             Msg::ClearNotifications => {
                 self.error = None;
                 self.success = None;
+            }
+            Msg::UpdateReceiveResponse(response) => {
+                match response {
+                    Ok(graphql_response) => {
+                        if graphql_response.errors.is_some() {
+                            self.error = Some(
+                                graphql_response
+                                    .errors
+                                    .unwrap()
+                                    .into_iter()
+                                    .map(|error| error.message)
+                                    .collect(),
+                            );
+                        }
+                        if graphql_response.data.is_some() {
+                            let post = graphql_response.data.unwrap().update_post;
+                            self.success = Some(post.into());
+                        }
+                    }
+                    Err(error) => self.error = Some(error.to_string()),
+                }
+                self.fetch_task = None;
             }
         }
         true
@@ -259,8 +296,8 @@ impl Component for NewPostModel {
     fn view(&self) -> Html {
         html! {
           <div>
-            <ToolbarModel />
-            <div id="markdown">
+             <ToolbarModel />
+             <div id="markdown">
                 <header>
                     <p>
                         {"Yew Markdown Preview: "}
