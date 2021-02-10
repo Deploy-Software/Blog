@@ -28,6 +28,15 @@ impl QueryRoot {
 
 #[Object]
 impl MutationRoot {
+    async fn add_setting<'a>(
+        &self,
+        ctx: &'a Context<'_>,
+        key: String,
+        value: String,
+    ) -> Result<&'a str> {
+        settings::add(ctx, key, value).await
+    }
+
     async fn sign_up<'a>(
         &self,
         ctx: &'a Context<'_>,

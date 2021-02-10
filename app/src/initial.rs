@@ -9,10 +9,12 @@ use yew::{
 };
 
 #[derive(cynic::FragmentArguments)]
-pub struct SignUpArguments {
+pub struct InitialArguments {
     email: String,
     name: String,
     password: String,
+    key: String,
+    title: String,
 }
 
 #[derive(cynic::QueryFragment, Debug, Deserialize)]
@@ -20,12 +22,14 @@ pub struct SignUpArguments {
     schema_path = "schema.graphql",
     query_module = "query_dsl",
     graphql_type = "MutationRoot",
-    argument_struct = "SignUpArguments"
+    argument_struct = "InitialArguments"
 )]
 #[serde(rename_all = "camelCase")]
 pub struct SignUpConnection {
     #[arguments(email = args.email.clone(), name = args.name.clone(), password = args.password.clone())]
     sign_up: String,
+    #[arguments(key = args.key.clone(), value = args.title.clone())]
+    add_setting: String,
 }
 
 #[derive(Debug)]
@@ -110,13 +114,13 @@ impl InitialModel {
     }
 
     fn view_name_error(&self) -> Html {
-      if let Some(ref message) = self.name_error {
-          html! {
-              <p class="mt-1 text-red-500 text-sm">{ message }</p>
-          }
-      } else {
-          html! {}
-      }
+        if let Some(ref message) = self.name_error {
+            html! {
+                <p class="mt-1 text-red-500 text-sm">{ message }</p>
+            }
+        } else {
+            html! {}
+        }
     }
 
     fn view_password_error(&self) -> Html {
@@ -247,8 +251,8 @@ impl Component for InitialModel {
                 }
 
                 if self.name.is_empty() {
-                  self.name_error = Some("Your name is not valid".into());
-                  return true;
+                    self.name_error = Some("Your name is not valid".into());
+                    return true;
                 }
 
                 if self.password.is_empty() {
@@ -256,7 +260,9 @@ impl Component for InitialModel {
                     return true;
                 }
 
-                let operation = SignUpConnection::build(SignUpArguments {
+                let operation = SignUpConnection::build(InitialArguments {
+                    key: String::from("title"),
+                    title: self.blog.clone(),
                     email: self.email.clone(),
                     name: self.name.clone(),
                     password: self.password.clone(),
@@ -333,12 +339,12 @@ impl Component for InitialModel {
                 true
             }
             NameInputReceived(value) => {
-              self.error = None;
-              self.success = None;
-              self.name_error = None;
-              self.name = value;
-              true
-          }
+                self.error = None;
+                self.success = None;
+                self.name_error = None;
+                self.name = value;
+                true
+            }
             PasswordInputReceived(value) => {
                 self.error = None;
                 self.success = None;

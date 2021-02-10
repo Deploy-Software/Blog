@@ -38,3 +38,43 @@ impl<'a> Settings {
         }
     }
 }
+
+#[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
+pub struct NewSetting<'a> {
+    pub key: &'a str,
+    pub value: &'a str,
+}
+
+impl<'a> NewSetting<'a> {
+    pub fn new(key: &'a str, value: &'a str) -> Result<Self> {
+        Ok(Self { key, value })
+    }
+
+    pub async fn insert(&self, pg_pool: &PgPool) -> Result<Settings> {
+        match sqlx::query_as!(
+            Settings,
+            r#"
+                INSERT INTO settings
+                    (key, value)
+                VALUES
+                    ($1, $2)
+                RETURNING
+                    id,
+                    key,
+                    value,
+                    created_at
+            "#,
+            &self.key,
+            &self.value
+        )
+        .fetch_one(pg_pool)
+        .await
+        {
+            Ok(user) => Ok(user),
+            Err(error) => {
+                println!("{}", error.to_string());
+                Err(Error::from("Unable to insert setting in database."))
+            }
+        }
+    }
+}

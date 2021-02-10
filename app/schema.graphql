@@ -51,6 +51,7 @@ scalar DateTime
 scalar JSONObject
 
 type MutationRoot {
+  addSetting(key: String!, value: String!): String!
   signUp(email: String!, name: String!, password: String!): String!
   signIn(email: String!, password: String!): String!
   newPost(slug: String!, title: String!, text: String!, summary: String!): Post!
