@@ -31,7 +31,7 @@ async fn main() {
     let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
         .data(pg_pool)
         .finish();
-        
+
     let graphql_post = warp::path("graphql")
         .and(warp::post())
         .and(warp::header::optional("token"))

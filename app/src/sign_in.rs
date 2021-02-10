@@ -271,8 +271,7 @@ impl Component for SignInModel {
                             let mut storage = StorageService::new(Area::Local).unwrap();
                             storage.store("auth_token", Ok(token.clone()));
                             self.success = Some("OK".into());
-                            self.router_agent
-                                .send(ChangeRoute(AppRoute::Index.into()));
+                            self.router_agent.send(ChangeRoute(AppRoute::Index.into()));
                             self.email = String::from("");
                             self.password = String::from("");
                         }

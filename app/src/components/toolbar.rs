@@ -144,7 +144,7 @@ impl Component for ToolbarModel {
                 </div>
                 <div class="min-w-0 flex-1 md:px-8 lg:px-0 xl:col-span-6">
                   <div class="flex items-center px-6 py-4 md:max-w-3xl md:mx-auto lg:max-w-none lg:mx-0 xl:px-0">
-                    <p class="block w-full bg-white rounded-md py-2 pl-10 pr-3 text-lg placeholder-gray-500 focus:outline-none focus:text-gray-900 focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >{self.settings.get("title").and_then(|value| value.as_str()).unwrap_or("")}{" - "}{self.settings.get("tagline").and_then(|value| value.as_str()).unwrap_or("")}</p>
+                    <p class="block w-full bg-white rounded-md py-2 pl-10 pr-3 text-lg placeholder-gray-500 focus:outline-none focus:text-gray-900 focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >{self.settings.get("title").and_then(|value| value.as_str()).unwrap_or("")}{self.settings.get("tagline").and_then(|value| Some(format!(" - {}", value))).unwrap_or(String::from(""))}</p>
                   </div>
                 </div>
                 <div class="flex items-center md:absolute md:right-0 md:inset-y-0 lg:hidden">

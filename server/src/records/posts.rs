@@ -76,7 +76,13 @@ impl<'a> Post {
         }
     }
 
-    pub async fn update(pg_pool: &PgPool, post_id: i32, _user_id: i32, title: Option<String>, text: Option<String>) -> Result<()> {
+    pub async fn update(
+        pg_pool: &PgPool,
+        post_id: i32,
+        _user_id: i32,
+        title: Option<String>,
+        text: Option<String>,
+    ) -> Result<()> {
         match title {
             Some(updated_title) => {
                 match sqlx::query_as!(
@@ -95,7 +101,7 @@ impl<'a> Post {
                 .execute(pg_pool)
                 .await
                 {
-                    Ok(_post) => {},
+                    Ok(_post) => {}
                     Err(error) => {
                         println!("{}", error.to_string());
                         return Err(Error::from(
@@ -103,7 +109,7 @@ impl<'a> Post {
                         ));
                     }
                 }
-            },
+            }
             None => {}
         }
 
@@ -125,7 +131,7 @@ impl<'a> Post {
                 .execute(pg_pool)
                 .await
                 {
-                    Ok(_post) => {},
+                    Ok(_post) => {}
                     Err(error) => {
                         println!("{}", error.to_string());
                         return Err(Error::from(
@@ -133,7 +139,7 @@ impl<'a> Post {
                         ));
                     }
                 }
-            },
+            }
             None => {}
         }
         Ok(())
@@ -150,8 +156,20 @@ pub struct NewPost<'a> {
 }
 
 impl<'a> NewPost<'a> {
-    pub fn new(slug: &'a str, title: &'a str, text: &'a str, summary: &'a str, created_by: i32) -> Result<Self> {
-        Ok(Self { slug, title, text, summary, created_by })
+    pub fn new(
+        slug: &'a str,
+        title: &'a str,
+        text: &'a str,
+        summary: &'a str,
+        created_by: i32,
+    ) -> Result<Self> {
+        Ok(Self {
+            slug,
+            title,
+            text,
+            summary,
+            created_by,
+        })
     }
 
     pub async fn insert(&self, pg_pool: &PgPool) -> Result<Post> {
