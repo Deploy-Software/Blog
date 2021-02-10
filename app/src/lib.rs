@@ -23,6 +23,7 @@ pub struct DateTime(chrono::DateTime<chrono::Utc>);
 #[derive(cynic::Scalar, Deserialize)]
 pub struct Jsonobject(serde_json::value::Value);
 
+mod authorization;
 mod components;
 mod index;
 mod initial;

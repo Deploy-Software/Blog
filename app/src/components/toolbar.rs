@@ -1,3 +1,4 @@
+use crate::authorization::Authorities;
 use crate::query_dsl;
 use crate::Jsonobject;
 use cynic::GraphQLResponse;
@@ -8,6 +9,7 @@ use yew::format::Json;
 use yew::prelude::*;
 use yew::services::console::ConsoleService;
 use yew::services::fetch::{FetchTask, Request, Response};
+use yew::services::storage::{Area, StorageService};
 use yew::services::FetchService;
 
 #[derive(cynic::QueryFragment, Deserialize)]
@@ -17,34 +19,77 @@ use yew::services::FetchService;
     graphql_type = "QueryRoot"
 )]
 #[serde(rename_all = "camelCase")]
-pub struct SettingsConnection {
+pub struct ToolbarConnection {
     settings: Jsonobject,
+    authorization: Option<Authorities>,
 }
 
 pub struct ToolbarModel {
     settings: Map<String, Value>,
+    authorization: Option<Authorities>,
     fetch_target: Option<FetchTask>,
 }
 
+impl ToolbarModel {
+    pub fn view_button(&self) -> Html {
+        match &self.authorization {
+            Some(authorization) => match authorization.valid_token {
+                true => {
+                    html! {<a
+                        href="/posts/new"
+                        class="ml-6 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        {"New Post"}
+                    </a>}
+                }
+                false => {
+                    html! { <a
+                        href="/sign/in"
+                        class="ml-6 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        {"Sign in"}
+                    </a>}
+                }
+            },
+            None => html! {
+            <a
+                href="/sign/in"
+                class="ml-6 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+                {"Sign in"}
+            </a>
+            },
+        }
+    }
+}
+
 pub enum Msg {
-    ReceiveResponse(Result<GraphQLResponse<SettingsConnection>, anyhow::Error>),
+    ReceiveResponse(Result<GraphQLResponse<ToolbarConnection>, anyhow::Error>),
 }
 
 impl Component for ToolbarModel {
     type Message = Msg;
     type Properties = ();
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let operation = SettingsConnection::build(());
+        let storage = StorageService::new(Area::Local).unwrap();
+
+        let token: String = match storage.restore("auth_token") {
+            Ok(token) => token,
+            Err(_err) => String::from(""),
+        };
+
+        let operation = ToolbarConnection::build(());
 
         let query = serde_json::to_string(&operation).unwrap();
 
         let request = Request::post("/graphql")
             .header("Content-Type", "application/json")
+            .header("token", token)
             .body(Ok(query))
             .expect("Failed to build request.");
         let callback = link.callback(
             |response: Response<
-                Json<Result<GraphQLResponse<SettingsConnection>, anyhow::Error>>,
+                Json<Result<GraphQLResponse<ToolbarConnection>, anyhow::Error>>,
             >| {
                 let Json(data) = response.into_body();
                 Msg::ReceiveResponse(data)
@@ -54,6 +99,7 @@ impl Component for ToolbarModel {
 
         Self {
             settings: Map::new(),
+            authorization: None,
             fetch_target: Some(target),
         }
     }
@@ -68,6 +114,7 @@ impl Component for ToolbarModel {
                                 Some(map) => map.clone(),
                                 None => Map::new(),
                             };
+                            self.authorization = data.authorization;
                         }
                         None => {}
                     },
@@ -112,9 +159,7 @@ impl Component for ToolbarModel {
                   </button>
                 </div>
                 <div class="hidden lg:flex lg:items-center lg:justify-end xl:col-span-4">
-                  <a href="/sign/in" class="ml-6 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    {"Sign in"}
-                  </a>
+                    { self.view_button() }
                 </div>
               </div>
             </div>

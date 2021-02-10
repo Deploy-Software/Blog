@@ -40,6 +40,10 @@ directive @connection(
   filter: [String!]
 ) on FIELD
 
+type Authorities {
+  validToken: Boolean!
+}
+
 """
 Implement the DateTime<Utc> scalar
 
@@ -68,6 +72,7 @@ type Post {
 }
 
 type QueryRoot {
+  authorization: Authorities
   posts: [Post!]!
   post(postId: Int!): Post
   settings: JSONObject!
