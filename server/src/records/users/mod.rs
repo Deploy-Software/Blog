@@ -1,5 +1,5 @@
 use async_graphql::{Error, Result, SimpleObject};
-use bcrypt::{hash, DEFAULT_COST, verify};
+use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::DateTime;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -17,6 +17,13 @@ pub struct SimpleUser {
 }
 
 impl<'a> SimpleUser {
+    pub fn unwrap_user_session(maybe_user: Option<SimpleUser>) -> Result<SimpleUser> {
+        match maybe_user {
+            Some(user) => Ok(user),
+            None => Err(Error::from("The user session doesn't exist.")),
+        }
+    }
+
     pub async fn from_email(pg_pool: &PgPool, email: &'a str) -> Result<Self> {
         match sqlx::query_as!(
             Self,
@@ -50,7 +57,10 @@ impl<'a> SimpleUser {
         }
     }
 
-    pub async fn from_session_token(pg_pool: &PgPool, session_token: &'a str) -> Result<Self> {
+    pub async fn from_session_token(
+        pg_pool: &PgPool,
+        session_token: &'a str,
+    ) -> Result<Option<Self>> {
         match sqlx::query_as!(
             Self,
             r#"
@@ -74,10 +84,7 @@ impl<'a> SimpleUser {
         .fetch_optional(pg_pool)
         .await
         {
-            Ok(maybe_user) => match maybe_user {
-                Some(user) => Ok(user),
-                None => Err(Error::from("The user session doesn't exist.")),
-            },
+            Ok(maybe_user) => Ok(maybe_user),
             Err(error) => {
                 println!("{}", error.to_string());
                 Err(Error::from(
@@ -87,10 +94,7 @@ impl<'a> SimpleUser {
         }
     }
 
-    pub async fn password_matches(
-        &self,
-        password_to_test: &'a str,
-    ) -> Result<bool> {
+    pub async fn password_matches(&self, password_to_test: &'a str) -> Result<bool> {
         match verify(password_to_test, &self.password) {
             Ok(matches) => Ok(matches),
             Err(error) => {
@@ -144,7 +148,11 @@ impl<'a> NewUser<'a> {
             }
         };
 
-        Ok(NewUser { email, name, password: hashed_password })
+        Ok(NewUser {
+            email,
+            name,
+            password: hashed_password,
+        })
     }
 
     pub async fn insert(&self, pg_pool: &PgPool) -> Result<SimpleUser> {

@@ -114,6 +114,10 @@ impl Component for RootModel {
     }
 
     fn view(&self) -> Html {
+        if self.fetch_target.is_some() {
+            return html! {"Loading..."};
+        }
+
         match self.settings.get("title") {
             Some(_title) => html! {
             <Router<AppRoute, ()>

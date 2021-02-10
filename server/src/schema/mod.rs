@@ -1,3 +1,4 @@
+use crate::records::authorities::Authorities;
 use crate::records::posts::Post;
 use crate::{MutationRoot, QueryRoot};
 use async_graphql::{Context, Object, Result};
@@ -9,6 +10,10 @@ mod settings;
 
 #[Object]
 impl QueryRoot {
+    async fn authorization<'a>(&self, ctx: &'a Context<'_>) -> Result<Option<Authorities>> {
+        authorization::get(ctx).await
+    }
+
     async fn posts<'a>(&self, ctx: &'a Context<'_>) -> Result<Vec<Post>> {
         posts::get_all(ctx).await
     }
