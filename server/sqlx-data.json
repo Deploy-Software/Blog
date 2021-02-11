@@ -1,0 +1,403 @@
+{
+  "db": "PostgreSQL",
+  "0af6959ae2b20f46a4d1b41ed5ab2d580b9b478637b7037819a83d3d0912f32a": {
+    "query": "\n                    UPDATE\n                        posts\n                    SET\n                        title = $1\n                    WHERE\n                        id = $2\n                    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "223dce0a3f85063b9860be2763e150103a6f7a34c830b09b1ee5c3501c275c33": {
+    "query": "\n                INSERT INTO settings\n                    (key, value)\n                VALUES\n                    ($1, $2)\n                RETURNING\n                    id,\n                    key,\n                    value,\n                    created_at\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "key",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "value",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "5e658da5c4f4cfa79be4f3f8e57716adeb235e41337c4a6f7251e2247aeae511": {
+    "query": "\n                INSERT INTO users\n                    (email, name, password)\n                VALUES\n                    ($1, $2, $3)\n                RETURNING\n                    id,\n                    email,\n                    name,\n                    password,\n                    date\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "date",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "6086bdbb2722c85714df6a60f1a2eb8be15f650c347a336a38862b2f0e0088c7": {
+    "query": "\n            INSERT INTO posts\n                (slug, title, text, summary, created_by)\n            VALUES\n                ($1, $2, $3, $4, $5)\n            RETURNING\n                id,\n                slug,\n                title,\n                text,\n                summary,\n                created_at\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "summary",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Text",
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "70511624f8f405b80468883e226b458ceade7e3466ea6e596f1072415ba366f3": {
+    "query": "\n            SELECT\n                posts.id,\n                posts.slug,\n                posts.title,\n                posts.text,\n                posts.summary,\n                posts.created_at\n            FROM\n                posts\n            WHERE\n                posts.id = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "summary",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "b634f3897ddda342eee52c24e3128b99e827c0c73452171bbf3d35a44249157d": {
+    "query": "\n                SELECT\n                    users.id,\n                    users.email,\n                    users.name,\n                    users.password,\n                    users.date\n                FROM\n                    users\n                WHERE\n                    email = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "date",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "c6b01295a6c94aa93449baf89f1316b33f10c515a26701d9fb843d9e3189af3a": {
+    "query": "\n                SELECT\n                    users.id,\n                    users.email,\n                    users.name,\n                    users.password,\n                    users.date\n                FROM\n                    users\n                INNER JOIN\n                    user_sessions\n                ON\n                    users.id = user_sessions.user_id\n                WHERE\n                    user_sessions.token = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "date",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "ded33227b469dd166880b189e9bcd61de1c024a5b93046c4a90d66008d0f37a6": {
+    "query": "\n            INSERT INTO user_sessions\n                (user_id, token)\n            VALUES\n                ($1, $2)\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "e2178e803fda8683315d0f6dd9ece00b4068502d449a78a699c8e36ed9a130b7": {
+    "query": "\n            SELECT\n                settings.id,\n                settings.key,\n                settings.value,\n                settings.created_at\n            FROM\n                settings\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "key",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "value",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "f366d899de888e9f5e6e6e8d187a98456ffc12a1447d681c784732d2aa765319": {
+    "query": "\n            SELECT\n                posts.id,\n                posts.slug,\n                posts.title,\n                posts.text,\n                posts.summary,\n                posts.created_at\n            FROM\n                posts\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "summary",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "fba296a8854763522e0048c6048d509f576933820e2ea560818af5725378bc8f": {
+    "query": "\n                    UPDATE\n                        posts\n                    SET\n                        text = $1\n                    WHERE\n                        id = $2\n                    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  }
+}
