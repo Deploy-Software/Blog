@@ -28,12 +28,13 @@ Typically http://localhost:3030.
 
 ### Running the tests
 Simply run
-
-`cd app``
+````
+cd app
 cargo test
 
 cd ../server
-cargo test`````
+cargo test
+````
 
 ### And coding style tests
 
