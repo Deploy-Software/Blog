@@ -1,6 +1,6 @@
 # Deploy Software Blogs
 
-Deploy Software Blogs is a blogging platform written in Rust, including the frontend (Yew) and the backend (Warp).
+Deploy Software Blogs is a blogging platform written in Rust, including both the frontend and the backend.
 
 ## Getting Started
 
@@ -20,7 +20,7 @@ Export a Database URL. For example:
 
 `export DATABASE_URL="postgres://john:doe@localhost/blog"`
 
-cargo run
+`./start.sh`
 
 Then browse to http://\<yourhost\>:\<yourport\>
 
@@ -28,9 +28,12 @@ Typically http://localhost:3030.
 
 ### Running the tests
 Simply run
-```
+
+`cd app``
 cargo test
-```
+
+cd ../server
+cargo test`````
 
 ### And coding style tests
 
