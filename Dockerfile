@@ -45,11 +45,14 @@ RUN cargo build --release
 
 # 2: Copy the exe and extra files ("static") to an empty Docker image
 FROM rust:slim as deploy
-COPY --from=builder /code/server/target/release/server /usr/bin/server
+RUN mkdir -p /code/server/target/release/
+WORKDIR /code/server
+COPY --from=builder /code/server/static /code/server/static
+COPY --from=builder /code/server/target/release/server /code/server/target/release/server
 
 RUN apt-get update && \
     apt-get dist-upgrade -y && \
     apt-get install -y libssl-dev libcurl4-openssl-dev
 
 EXPOSE 8080
-ENTRYPOINT ["/usr/bin/server"]
+ENTRYPOINT ["/code/server/target/release/server"]
