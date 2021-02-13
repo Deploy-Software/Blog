@@ -54,5 +54,5 @@ RUN apt-get update && \
     apt-get dist-upgrade -y && \
     apt-get install -y libssl-dev libcurl4-openssl-dev
 
-EXPOSE 8080
+EXPOSE 3030
 ENTRYPOINT ["/code/server/target/release/server"]
