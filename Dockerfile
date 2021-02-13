@@ -35,6 +35,7 @@ FROM base AS builder
 WORKDIR /code/app
 RUN rm -r /code/app/src
 COPY app/src /code/app/src
+COPY app/schema.graphql /code/app/schema.graphql
 RUN wasm-pack build --target web --out-name wasm --out-dir ../server/static
 
 WORKDIR /code/server
