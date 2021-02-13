@@ -21,6 +21,7 @@ RUN cargo fetch
 COPY app/sample.rs /code/app/src/lib.rs
 RUN wasm-pack build --target web --out-name wasm --out-dir ../server/static
 RUN rm -f /code/app/target/release/deps/yew_ap*
+RUN rm -f /code/app/target/wasm32-unknown-unknown/release/deps/yew_ap*
 
 WORKDIR /code/server
 RUN cargo init
